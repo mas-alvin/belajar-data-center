@@ -1,0 +1,79 @@
+services:
+  # 1. Aplikasi Utama
+  # nama container nya yang *-app ini harus di samakan dengan yang ada di docker/nginx.conf
+  dc-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER: alfiansyah
+        UID: 1000
+    image: data-center-app
+    container_name: dc-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - dc-network
+    depends_on:
+      dc-db:
+        condition: service_healthy
+
+  # 2. Web Server (Nginx)
+  dc-web:
+    image: nginx:alpine
+    container_name: dc-web
+    restart: unless-stopped
+    ports:
+    # buatkan environment baru .env yang disesuiakan dengan dibawah ini
+      - "${APP_PORT:-8003}:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - dc-network
+    depends_on:
+      - dc-app
+
+  # 3. Database (PostgreSQL)
+  dc-db:
+    image: postgres:15-alpine
+    # di .env DB_HOST nya harus sama seperti dibawah ini
+    container_name: dc-db
+    restart: unless-stopped
+    environment:
+    # di .env yang 3 ini harus sama dibawah ini
+      POSTGRES_DB: ${DB_DATABASE:-dc_db}
+      POSTGRES_USER: ${DB_USERNAME:-dc_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dc_password}
+    ports:
+    # buatkan environment baru .env yang disesuiakan dengan dibawah ini
+      - "${DB_PORT_EXTERNAL:-5435}:5432"
+    volumes:
+      - dc-db-data:/var/lib/postgresql/data
+    networks:
+      - dc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-dc_admin} -d ${DB_DATABASE:-dc_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 4. Database Manager (Adminer)
+  dc-adminer:
+    image: adminer
+    container_name: dc-adminer
+    restart: unless-stopped
+    ports:
+    # buatkan environment baru .env yang disesuiakan dengan dibawah ini(Opsional kalau pakai pgsql)
+      - "${ADMINER_PORT:-8083}:8080"
+    networks:
+      - dc-network
+
+networks:
+  dc-network:
+    driver: bridge
+
+volumes:
+  dc-db-data:

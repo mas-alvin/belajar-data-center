@@ -181,7 +181,7 @@
 
     async function loadKelasOptions() {
         try {
-            const res = await fetch('/api/kelas?per_page=100', { headers: { 'Accept': 'application/json' } });
+            const res = await fetch('/kelas?per_page=100', { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             if(data.success) {
                 const filterSelect = document.getElementById('filter-kelas');
@@ -389,6 +389,7 @@
             const data = await res.json();
             
             if (res.status === 422) { // Validation error
+                let errorMsg = '';
                 for (const key in data.errors) {
                     errorMsg += data.errors[key][0] + " ";
                 }
@@ -410,8 +411,18 @@
     }
 
     async function deleteStudent(id, nama) {
-        const isConfirm = confirm(`Peringatan Konfirmasi!\nApakah Anda yakin ingin menghapus data siswa "${nama}"? Data akan hilang permanen.`);
-        if (!isConfirm) return;
+        const result = await Swal.fire({
+            title: 'Peringatan Konfirmasi!',
+            text: `Apakah Anda yakin ingin menghapus data siswa "${nama}"? Data akan hilang permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             const res = await fetch(`/api/students/${id}`, {

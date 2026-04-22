@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .sidebar-scroll::-webkit-scrollbar { width: 4px; }
@@ -80,26 +79,22 @@
         }
     }
     function showToast(message, type = 'success') {
-        let bgColor = "#10b981"; // emerald-500
-        if (type === 'error') bgColor = "#ef4444"; // red-500
-        if (type === 'warning') bgColor = "#f59e0b"; // amber-500
-        if (type === 'info') bgColor = "#3b82f6"; // blue-500
-
-        Toastify({
-            text: message,
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            style: {
-                background: bgColor,
-                borderRadius: "12px",
-                fontWeight: "600",
-                fontSize: "14px",
-                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
-        }).showToast();
+        });
+
+        Toast.fire({
+            icon: type,
+            title: message
+        });
     }
 
     window.addEventListener('resize', () => {

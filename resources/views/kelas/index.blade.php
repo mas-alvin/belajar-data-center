@@ -167,7 +167,7 @@
         tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">Loading data...</td></tr>`;
 
         try {
-            const url = new URL(window.location.origin + '/api/kelas');
+            const url = new URL(window.location.origin + '/kelas');
             url.searchParams.append('page', page);
             if(search) url.searchParams.append('search', search);
             if(status) url.searchParams.append('status', status);
@@ -236,7 +236,7 @@
 
     async function editData(id) {
         try {
-            const res = await fetch(`/api/kelas/${id}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`/kelas/${id}`, { headers: { 'Accept': 'application/json' } });
             const response = await res.json();
             if(response.success) {
                 const item = response.data;
@@ -254,7 +254,7 @@
     async function saveData() {
         const id = document.getElementById('item_id').value;
         const method = id ? 'PUT' : 'POST';
-        const url = id ? `/api/kelas/${id}` : `/api/kelas`;
+        const url = id ? `/kelas/${id}` : `/kelas`;
         const payload = {
             nama_kelas: document.getElementById('input-nama').value,
             jurusan_id: document.getElementById('input-jurusan').value,
@@ -284,9 +284,20 @@
     }
 
     async function deleteData(id, name) {
-        if (!confirm(`Hapus data kelas "${name}"?`)) return;
+        const result = await Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: `Apakah Anda yakin ingin menghapus data kelas "${name}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        });
+
+        if (!result.isConfirmed) return;
         try {
-            const res = await fetch(`/api/kelas/${id}`, {
+            const res = await fetch(`/kelas/${id}`, {
                 method: 'DELETE',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
             });

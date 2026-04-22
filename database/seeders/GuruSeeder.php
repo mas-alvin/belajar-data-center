@@ -12,39 +12,20 @@ class GuruSeeder extends Seeder
      */
     public function run(): void
     {
-        $gurus = [
-            [
-                'nip' => '198001012010011001',
-                'nama_guru' => 'Budi Santoso, S.Pd',
-                'jenis_kelamin' => 'L',
-                'no_telp' => '081234567890',
-                'status' => 'aktif',
-            ],
-            [
-                'nip' => '198202022012022002',
-                'nama_guru' => 'Siti Aminah, M.Pd',
-                'jenis_kelamin' => 'P',
-                'no_telp' => '081234567891',
-                'status' => 'aktif',
-            ],
-            [
-                'nip' => '198503032015031003',
-                'nama_guru' => 'Ahmad Rifa\'i, S.Kom',
-                'jenis_kelamin' => 'L',
-                'no_telp' => '081234567892',
-                'status' => 'aktif',
-            ],
-            [
-                'nip' => '198804042018042004',
-                'nama_guru' => 'Dewi Lestari, S.Si',
-                'jenis_kelamin' => 'P',
-                'no_telp' => '081234567893',
-                'status' => 'aktif',
-            ],
-        ];
+        $faker = \Faker\Factory::create('id_ID');
 
-        foreach ($gurus as $guru) {
-            Guru::updateOrCreate(['nip' => $guru['nip']], $guru);
+        for ($i = 0; $i < 15; $i++) {
+            $jk = $faker->randomElement(['L', 'P']);
+            $gelar = $jk === 'L' ? 'S.Pd' : 'M.Pd';
+            $nama = $faker->firstName($jk === 'L' ? 'male' : 'female') . ' ' . $faker->lastName . ', ' . $gelar;
+
+            \App\Models\Guru::create([
+                'nip' => $faker->unique()->numerify('198#######201#####'),
+                'nama_guru' => $nama,
+                'jenis_kelamin' => $jk,
+                'no_telp' => $faker->phoneNumber,
+                'status' => 'aktif',
+            ]);
         }
     }
 }

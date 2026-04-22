@@ -17,8 +17,12 @@ class KelasController extends Controller
         $this->kelasService = $kelasService;
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
+        if (!$request->wantsJson()) {
+            return view('kelas.index');
+        }
+
         try {
             $filters = $request->only(['search', 'status']);
             $perPage = $request->get('per_page', 10);
